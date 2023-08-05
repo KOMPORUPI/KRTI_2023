@@ -1,0 +1,13 @@
+<launch>
+  <include file="$(find mavros)/launch/px4.launch">
+    <!-- <arg name="param1" value="value1" /> -->
+  </include>
+
+  <include file="$(find realsense-ros)/launch/rs_rgbd.launch">
+    <arg name="depth_width" value="640" />
+    <arg name="depth_height" value="480" />
+    <arg name="depth_fps" value="15" />
+  </include>
+
+  <node name="keyboard_node" pkg="my_package" type="keyboard_type.py" />
+</launch>
