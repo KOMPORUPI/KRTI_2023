@@ -32,7 +32,7 @@ class MavController:
 
         self.cmd_pos_pub = rospy.Publisher("/mavros/setpoint_position/local", PoseStamped, queue_size=1)
         self.cmd_vel_pub = rospy.Publisher("/mavros/setpoint_velocity/cmd_vel_unstamped", Twist, queue_size=1)
-        self.rc_override = rospy.Publisher("/mavros/rc/override", OverrideRCIn, queue_size=1)
+        self.rc_override = rospy.Publisher("/mavros/rc/override", OverrideRCIn, queue_size=100)
 
 
         # mode 0 = STABILIZE
@@ -46,6 +46,7 @@ class MavController:
 
 
         self.rc = RCIn()
+        self.rc_override_msg = OverrideRCIn()
         self.pose = Pose()
         self.timestamp = rospy.Time()
 
@@ -55,6 +56,24 @@ class MavController:
         Keep track of the current manual RC values
         """
         self.rc = data
+    
+    def relay(self, state):
+        """
+        Keep track of the current manual RC values
+        """
+        if state == 1:
+            for i in 17:
+                if i == 2:
+                    self.rc_override_msg.channels[i] = 1400
+                else:
+                    self.rc_override_msg.channels[i] = -1
+
+        if state == 0:
+            for i in 17:
+                if i == 2:
+                    self.rc_override_msg.channels[i] = 0
+                else:
+                    self.rc_override_msg.channels[i] = -1
 
     def pose_callback(self, data):
         """
@@ -125,12 +144,19 @@ class MavController:
         Arm the throttle, takeoff to a few feet, and set to guided mode
         """
         # Set to stabilize mode for arming
-        #mode_resp = self.mode_service(custom_mode="0")
-        mode_resp = self.mode_service(custom_mode="4")
+        print("mode set to stabilize for arming")
+        mode_resp = self.mode_service(custom_mode="0")
+        # mode_resp = self.mode_service(custom_mode="4")
+
+        rospy.sleep(2)
         self.arm()
+        rospy.sleep(1)
+
+
 
         # Set to guided mode
-        #mode_resp = self.mode_service(custom_mode="4")
+        # print("mode set to guided for moving")
+        # mode_resp = self.mode_service(custom_mode="4")
 
         # Takeoff
         takeoff_resp = self.takeoff_service(altitude=height)
@@ -148,19 +174,16 @@ class MavController:
 
 
 def simple_demo():
-    """
-    A simple demonstration of using mavros commands to control a UAV.
-    """
+
     c = MavController()
-    
     rospy.sleep(1)
 
-    print("Takeoff")
-    c.takeoff(29)
+    print("Takeoff start")
+    c.takeoff(5)
 
-    rospy.sleep(30)
-    # c.goto_xyz_rpy(0,0,1.2,0,0,0)
-    # rospy.sleep(3)
+    rospy.sleep(6)
+
+
 
     # print("Waypoint 1: position control")
     # c.goto_xyz_rpy(0.0,0.0,1.2,0,0,-1*pi_2)
@@ -182,16 +205,18 @@ def simple_demo():
     # rospy.sleep(2)
     # c.goto_xyz_rpy(0.0,0.0,1.2,0,0,2*pi_2)
     # rospy.sleep(3)
+    
 
-    #print("Velocity Setpoint 1")
-    #c.set_vel(0,0.1,0)
-    #rospy.sleep(5)
-    #print("Velocity Setpoint 2")
-    #c.set_vel(0,-0.1,0)
-    #rospy.sleep(5)
-    #print("Velocity Setpoint 3")
-    #c.set_vel(0,0,0)
-    #rospy.sleep(5)
+    print("Velocity Setpoint 1")
+    c.set_vel(0,0.5,0)
+    rospy.sleep(2)
+    print("Velocity Setpoint 2")
+    c.set_vel(0,-0.5,0)
+    rospy.sleep(2)
+    print("Velocity Setpoint 3")
+    c.set_vel(0,0,0)
+    rospy.sleep(1)
+
 
     print("Landing")
     c.land()
