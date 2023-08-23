@@ -1,8 +1,17 @@
 <launch>
-  <node pkg="tfmini_ros_tiers" type="tfmini_ros_node" name="tfmini_ros_node">
+  <!-- <node pkg="tfmini_ros_tiers" type="tfmini_ros_node" name="tfmini_ros_node">
     <param name="serial_port" type="string" value="/dev/ttyTHS1" />
     <param name="baud_rate" type="int" value="115200" />
-  </node>
+  </node> -->
+
+  <node pkg="tfmini_ros_tiers" type="tfmini_bikin.py" name="tfmini_bikin"/>
+
+  <node pkg="tfmini_ros_tiers" type="tfmini_bikin1.py" name="tfmini_bikin1"/>
   
   <node pkg="tf" type="static_transform_publisher" name="broadcasterTFmini" args="0 0 0 0 0 0 base_link TFmini 100" />
+
+
 </launch>
+
+
+<!-- <param name="publish_frequency" type="double" value="10.0" /> -->

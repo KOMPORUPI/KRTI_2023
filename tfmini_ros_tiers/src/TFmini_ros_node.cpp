@@ -47,7 +47,7 @@ int main(int argc, char **argv)
     }
     else if(dist == 0.0)
     {
-      ROS_ERROR_STREAM("Data validation error!");
+      ROS_ERROR_STREAM("Data validation error");
       TFmini_status.data = "error";
     }
     else {
